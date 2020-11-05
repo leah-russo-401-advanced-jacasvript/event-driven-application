@@ -1,11 +1,26 @@
 'use strict';
 
-const net = require('net');
-const client = new net.Socket();
-const { getuid, geteuid } = require('process');
+// const net = require('net');
+// const client = new net.Socket();
+// const { getuid, geteuid } = require('process');
 
-const host = 'localhost';
-const port = 3000;
+// const host = 'localhost';
+// const port = 3000;
+
+/////// new server /////////////
+
+const ioClient = require('socket.io-client');
+const socket = ioClient('ws://localhost:3000/vendor');
+
+socket.on('connect', ()=> {
+  setInterval(()=> {
+    socket.emit('pickup', store)
+  }, 5000)
+})
+
+socket.on('delivered', (payload)=> {
+  console.log(`thank you for delivering order ${payload.orderID}`);
+})
 
   function uuidv4() {
     return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
@@ -27,24 +42,22 @@ class Store {
 const store = new Store('me','testStore','somePlace');
 
 
-client.connect(port,host, ()=> { 
-  console.log('vendor is running')
-});
+// client.connect(port,host, ()=> { 
+//   console.log('vendor is running')
+// });
 
 
-const message = JSON.stringify({event: 'pickup', payload: store});
+// const message = JSON.stringify({event: 'pickup', payload: store});
 
-setInterval( ()=> {
-  client.write(message);
-}, 5000);
+// 
 
-client.on('data', data=> {
-  let parser = JSON.parse(data);
-  if(parser.event === 'delivered') {
-    let thankYou = json.stringify({event: 'Thank you', payload: `Thank you for delivering ${parser.payload.orderID}`});
-    client.write(thankYou);
-  }
-})
+// client.on('data', data=> {
+//   let parser = JSON.parse(data);
+//   if(parser.event === 'delivered') {
+//     let thankYou = json.stringify({event: 'Thank you', payload: `Thank you for delivering ${parser.payload.orderID}`});
+//     client.write(thankYou);
+//   }
+// })
 
 
 

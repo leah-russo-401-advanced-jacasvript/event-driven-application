@@ -1,46 +1,84 @@
 'use strict';
+//////////////////// olds server ////////////////
+// const net = require('net');
+// //require('dotenv').config();
+// const port = 3000;
 
-const net = require('net');
-//require('dotenv').config();
-const port = 3000;
+// const server = net.createServer();
 
-const server = net.createServer();
+// server.listen(port, () => {
+//   console.log( `server running on port ${port}`)
+// })
 
-server.listen(port, () => {
-  console.log( `server running on port ${port}`)
+///////////////////////////////////////////////////
+//new server:
+
+const io = require('socket.io');
+const server = io(3000);
+const vendorServer = server.of('/vendor');
+const driverServer = server.of('/driver');
+
+server.on('connection', (socket) => {
+  console.log(`${socket.id} has connected`)
+
 })
 
-let socketPool = {};
+vendorServer.on('connection', socket => {
+  socket.on('pickup', payload => {
+    console.log(`event`, {event: 'pickup', payload: payload});
+
+  driverServer.emit('pickup', payload);
+  })
+})
+
+driverServer.on('connection', socket => {
+  socket.on('in-transit', payload => {
+    console.log(`event`, {event: 'in-transit', payload: payload})
+
+  driverServer.emit('in-transit', payload);
+  })
+
+  socket.on('delivered', payload => {
+    console.log(`event`, {event: 'delivered', payload: payload})
+
+    vendorServer.emit('delivered', payload)
+
+  })
+})
+
+
+
+//let socketPool = {};
 
 // Convert these event listeners to the socket thingies:
 //events.on('pickup', payload => logger('pickup', payload) )
 //events.on('in-transit',payload => logger('in-transit',payload));
 //events.on('delivered',payload => logger('delivered',payload));
 
-server.on('connection', (socket) => {
-  const id = `Socket-${Math.random}`;
-  socketPool[id] = socket;
+// server.on('connection', (socket) => {
+//   const id = `Socket-${Math.random}`;
+//   socketPool[id] = socket;
 
-  socket.on('data', buffer => dispatch(buffer));
-  socket.on('error', (e) => { console.log('SOCKET ERROR', e); });
-  socket.on('end', (e) => { delete socketPool[id]; });
-});
+//   socket.on('data', buffer => dispatch(buffer));
+//   socket.on('error', (e) => { console.log('SOCKET ERROR', e); });
+//   socket.on('end', (e) => { delete socketPool[id]; });
+// });
 
-server.on('error', (e) => {
-  console.error('SERVER ERROR', e.message);
-});
+// server.on('error', (e) => {
+//   console.error('SERVER ERROR', e.message);
+// });
 
-function dispatch(buffer) {
-  let message = JSON.parse(buffer.toString().trim());
-  broadcast(message)
-}
+// function dispatch(buffer) {
+//   let message = JSON.parse(buffer.toString().trim());
+//   broadcast(message)
+// }
 
-function broadcast(message) {
-  let object = {'event': message.event, payload: message.payload};
-  let payload = JSON.stringify(object);
-  console.log(payload);
-  for(let socket in socketPool) {
-    socketPool[socket].write(payload);
-  }
-}
+// function broadcast(message) {
+//   let object = {'event': message.event, payload: message.payload};
+//   let payload = JSON.stringify(object);
+//   console.log(payload);
+//   for(let socket in socketPool) {
+//     socketPool[socket].write(payload);
+//   }
+// }
 
