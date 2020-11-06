@@ -1,0 +1,15 @@
+{
+  "name": "queue",
+  "version": "1.0.0",
+  "description": "",
+  "main": "queue-server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "socket.io-client": "^3.0.0"
+  }
+}

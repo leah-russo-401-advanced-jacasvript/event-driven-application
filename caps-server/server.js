@@ -18,6 +18,12 @@ const server = io(3000);
 const vendorServer = server.of('/vendor');
 const driverServer = server.of('/driver');
 
+let queue = {
+  pickup: {},
+  inTransit: {},
+  delivered: {}
+}
+
 server.on('connection', (socket) => {
   console.log(`${socket.id} has connected`)
 
@@ -25,20 +31,27 @@ server.on('connection', (socket) => {
 
 vendorServer.on('connection', socket => {
   socket.on('pickup', payload => {
+
+    queue.pickup[payload.orderID] = payload;
     console.log(`event`, {event: 'pickup', payload: payload});
 
-  driverServer.emit('pickup', payload);
+   driverServer.emit('pickup', payload);
   })
 })
 
 driverServer.on('connection', socket => {
   socket.on('in-transit', payload => {
+    delete queue.pickup[payload.orderID];
+    queue.inTransit[payload.orderID] = payload;
     console.log(`event`, {event: 'in-transit', payload: payload})
 
   driverServer.emit('in-transit', payload);
   })
 
   socket.on('delivered', payload => {
+
+    delete queue.inTransit[payload.orderID];
+    queue.delivered[payload.orderID] = payload;
     console.log(`event`, {event: 'delivered', payload: payload})
 
     vendorServer.emit('delivered', payload)
