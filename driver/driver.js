@@ -3,6 +3,10 @@
 
 const ioClient = require('socket.io-client');
 const socket = ioClient('ws://localhost:3000/driver');
+const superagent = require('superagent');
+
+// demo:
+//const socket = io.connect('http://localhost:3000')
 
 socket.on('pickup', payload => {
   console.log(`picked up ${payload.orderID}`);
@@ -12,12 +16,19 @@ socket.on('pickup', payload => {
   }, 1000)
 })
 
-socket.on('in-transit', payload => {
+socket.on('in-transit', async (payload) => {
   console.log(`delivered order ${payload.orderID}`);
+  try {
+    const req = await superagent.post(`http://localhost:3001/delivery/${payload.storeName}/${payload.orderID}`)
+    //console.log(req.body);
+    
+  } catch (error) {
+    console.log(error)
+  }
 
-  setTimeout( ()=> {
-    socket.emit('delivered', payload);
-  }, 2000);
+  // setTimeout( ()=> {
+  //   socket.emit('delivered', payload);
+  // }, 2000);
 })
 
 // const net = require('net');

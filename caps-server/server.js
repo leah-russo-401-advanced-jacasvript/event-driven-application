@@ -26,6 +26,15 @@ let queue = {
 
 server.on('connection', (socket) => {
   console.log(`${socket.id} has connected`)
+  socket.on('delivered', payload => {
+    console.log('i have arrived')
+    delete queue.inTransit[payload.orderID];
+    queue.delivered[payload.orderID] = payload;
+    console.log(`event`, {event: 'delivered', payload: payload})
+  
+    vendorServer.emit('delivered', payload)
+  
+  })
 
 })
 
@@ -48,15 +57,6 @@ driverServer.on('connection', socket => {
   driverServer.emit('in-transit', payload);
   })
 
-  socket.on('delivered', payload => {
-
-    delete queue.inTransit[payload.orderID];
-    queue.delivered[payload.orderID] = payload;
-    console.log(`event`, {event: 'delivered', payload: payload})
-
-    vendorServer.emit('delivered', payload)
-
-  })
 })
 
 
