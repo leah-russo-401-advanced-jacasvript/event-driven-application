@@ -1,8 +1,8 @@
 {
-  "name": "driver",
+  "name": "queue",
   "version": "1.0.0",
   "description": "",
-  "main": "driver.js",
+  "main": "queue-server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -10,7 +10,6 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "socket.io-client": "^2.3.1",
-    "superagent": "^6.1.0"
+    "socket.io-client": "^3.0.0"
   }
 }
